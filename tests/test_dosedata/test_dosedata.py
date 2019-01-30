@@ -145,25 +145,36 @@ WEDGED = [(-16.4, 0.27), (-16, 0.31), (-15.6, 0.29), (-15.2, 0.29),
           (16, 0.31), (16.4, 0.3)]
 
 
+# TEST PUSH FROM W10
+
+def test_DoseProfile_from_tuples():
+    profiler = DoseProfile()
+    profiler.from_tuples(PROFILER)
+    # print(profiler.x)
+
+
 def test_DoseProfile_segment():
-    profiler = DoseProfile(PROFILER)
+    p = DoseProfile()
+    p.from_tuples(PROFILER)
     # INVALID RANGE -> NO POINTS
-    assert np.array_equal(profiler.segment(start=1, stop=0).x, [])
-    assert np.array_equal(profiler.segment(start=1, stop=0).data, [])
+    assert np.array_equal(p.segment(start=1, stop=0).x, [])
+    assert np.array_equal(p.segment(start=1, stop=0).data, [])
+
     # POINT RANGE -> ONE POINT
-    assert np.array_equal(profiler.segment(start=0, stop=0).x, [0])
-    assert np.array_equal(profiler.segment(start=0, stop=0).data, [45.23])
+    assert np.array_equal(p.segment(start=0, stop=0).x, [0])  # NOW FAILS
+    assert np.array_equal(p.segment(start=0, stop=0).data, [45.23])
     # FULL RANGE -> ALL POINTS
-    assert np.array_equal(profiler.segment().x, profiler.x)
-    assert np.array_equal(profiler.segment().data, profiler.data)
+    assert np.array_equal(p.segment().x, p.x)
+    assert np.array_equal(p.segment().data, p.data)
     # MODIFY IN PLACE
-    profiler.segment(start=1, stop=0, inplace=True)
-    assert np.array_equal(profiler.x, [])
-    assert np.array_equal(profiler.data, [])
+    p.segment(start=1, stop=0, inplace=True)
+    assert np.array_equal(p.x, [])
+    assert np.array_equal(p.data, [])
 
 
 def test_DoseProfile_resample():
-    profiler = DoseProfile(PROFILER, metadata={'depth': 10, 'medium': 'water'})
+    profiler = DoseProfile(metadata={'depth': 10, 'medium': 'water'})
+    profiler.from_tuples(PROFILER)
     # METADATA
     assert profiler.metadata['depth'] == 10
     assert profiler.metadata['medium'] == 'water'
@@ -216,11 +227,12 @@ def test_DoseProfile_resample():
 
 
 if __name__ == "__main__":
-    test_conversion()
-    test_function_updating_with_shift()
-    test_default_interp_function()
+    # test_conversion()
+    # test_function_updating_with_shift()
+    # test_default_interp_function()
+    # test_DoseProfile_from_tuples()
     test_DoseProfile_segment()
-    test_DoseProfile_resample()
+    # test_DoseProfile_resample()
 #     test_pulse()
 #     test_resample()
 #     test_overlay()

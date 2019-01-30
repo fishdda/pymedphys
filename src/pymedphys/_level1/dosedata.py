@@ -110,30 +110,24 @@ class Dose1D(DoseBase):
 
 
 class DoseProfile(Dose1D):
-    def __init__(self, *args, metadata={}, x=[], data=[], **kwargs):
-        try:  # DoseProfile( x=[0,2,4], data=[1,3,5] )
-            x = kwargs.pop('x')
-            data = kwargs.pop('data')
-        except (KeyError):
-            pass
+    def __init__(self, *args, metadata={}, x=[], data=[]):
+        if len(x) > 0 and len(data) > 0:
+            super().__init__(x, data)
+        elif len(args) == 0:
+            super().__init__(x, data)
+        else:
+            x, data == args
+            super().__init__(x, data)
 
-        try:  # DoseProfile( [0,2,4], [1,3,5] )
-            assert (len(args) == 2)
-            assert len(args[0]) == len(args[1])
-            x = args[0]
-            data = args[1]
-        except (AssertionError, IndexError):
-            pass
+        # try:  # DoseProfile( [0,2,4], [1,3,5] )
+        #     assert len(args) == 2
+        #     assert len(args[0]) == len(args[1])
+        #     x = args[0]
+        #     data = args[1]
+        # except (AssertionError, IndexError):
+        #     pass
 
-        try:  # DoseProfile( [(0,1),(2,3),(4,5) ]
-            assert len(args) == 1
-            assert len(args[0][0]) == 2
-            x = list(list(zip(*args[0]))[0])
-            data = list(list(zip(*args[0]))[1])
-        except (AssertionError, IndexError):
-            pass
-
-        super().__init__(x, data)
+        # super().__init__(x, data)
 
         self.metadata = metadata
 
@@ -143,6 +137,12 @@ class DoseProfile(Dose1D):
 
     def interactive(self):
         pass
+
+    def from_tuples(self, list_of_tuples):
+        """ ADD A DOCSTRING  """
+        new_x = list(list(zip(*list_of_tuples))[0])
+        new_data = list(list(zip(*list_of_tuples))[1])
+        self.__init__(x=new_x, data=new_data, metadata=self.metadata)
 
     def segment(self, start=-np.inf, stop=np.inf, inplace=False):
         """ The part of dose profile between begin and end.
@@ -163,10 +163,13 @@ class DoseProfile(Dose1D):
         array_like
 
         """
-        start = max(start, min(self.x))
-        stop = min(stop, max(self.x))
-        new_x = self.x[np.logical_and(start <= self.x, stop >= self.x)]
-        new_data = self.interp(new_x)
+        try:
+            start = max(start, min(self.x))
+            stop = min(stop, max(self.x))
+            new_x = self.x[np.logical_and(start <= self.x, stop >= self.x)]
+            new_data = self.interp(new_x)
+        except ValueError:   # EMPTY PROFILE
+            new_x, new_data = [], []
 
         if inplace:
             self.__init__(new_x, new_data)
@@ -178,6 +181,8 @@ class DoseProfile(Dose1D):
 
         Resulting profile has stepsize of the indicated step based on
         linear interpolation over the points of the source profile.
+        Note that the physical length of the resample profile is
+        shorter than the original profile.
 
         Arguments
         -----------------
