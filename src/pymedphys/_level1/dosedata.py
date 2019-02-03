@@ -110,42 +110,44 @@ class Dose1D(DoseBase):
 
 
 class DoseProfile(Dose1D):
-    def __init__(self, *args, metadata={}, x=[], data=[]):
-        if len(x) > 0 and len(data) > 0:
-            super().__init__(x, data)
-        elif len(args) == 0:
-            super().__init__(x, data)
-        else:
-            x, data == args
-            super().__init__(x, data)
-
-        # try:  # DoseProfile( [0,2,4], [1,3,5] )
-        #     assert len(args) == 2
-        #     assert len(args[0]) == len(args[1])
-        #     x = args[0]
-        #     data = args[1]
-        # except (AssertionError, IndexError):
-        #     pass
-
-        # super().__init__(x, data)
-
+    def __init__(self, x, data, metadata={}):
         self.metadata = metadata
+        super().__init__(x, data)
+
+    def __len__(self):
+        assert len(self.x) == len(self.data)
+        return len(self.x)
+
+    def from_tuples(self, list_of_tuples, metadata={}):
+        """ Load a list of (x,data) tuples.
+
+        Overwrites any existing dose profile data and metadata.
+
+        Arguments
+        ---------
+        list_of_tuples : list
+            List of (float x, float data) tuples.
+
+        Keyword Arguments
+        -----------------
+        metadata : dict, toptional
+            Dictionary of key-value pairs that describe the profile
+
+        """
+        self.metadata = metadata
+        x = list(list(zip(*list_of_tuples))[0])
+        data = list(list(zip(*list_of_tuples))[1])
+        super().__init__(x, data)
 
     def __len__(self):
         assert len(self.x) == len(self.data)
         return len(self.x)
 
     def interactive(self):
-        pass
-
-    def from_tuples(self, list_of_tuples):
-        """ ADD A DOCSTRING  """
-        new_x = list(list(zip(*list_of_tuples))[0])
-        new_data = list(list(zip(*list_of_tuples))[1])
-        self.__init__(x=new_x, data=new_data, metadata=self.metadata)
+        pass  # WHAT IS THIS INTENDED TO DO?
 
     def segment(self, start=-np.inf, stop=np.inf, inplace=False):
-        """ The part of dose profile between begin and end.
+        """ Part of dose profile between begin and end.
 
         Resulting profile is comprised of those points in the source
         profile whose distance values are not-less-than start and
@@ -163,13 +165,15 @@ class DoseProfile(Dose1D):
         array_like
 
         """
+
         try:
             start = max(start, min(self.x))
             stop = min(stop, max(self.x))
-            new_x = self.x[np.logical_and(start <= self.x, stop >= self.x)]
+            new_x = self.x[np.logical_and(self.x >= start, self.x <= stop)]
             new_data = self.interp(new_x)
-        except ValueError:   # EMPTY PROFILE
-            new_x, new_data = [], []
+        except ValueError:  # empty profile
+            new_x = []
+            new_data = []
 
         if inplace:
             self.__init__(new_x, new_data)
@@ -181,8 +185,6 @@ class DoseProfile(Dose1D):
 
         Resulting profile has stepsize of the indicated step based on
         linear interpolation over the points of the source profile.
-        Note that the physical length of the resample profile is
-        shorter than the original profile.
 
         Arguments
         -----------------
@@ -241,19 +243,8 @@ class DoseProfile(Dose1D):
         pass
 
 
-class DoseDepth(Dose1D):  # SHOULD DOSE PROFILE SUPPORT PDD?
+class DoseDepth(Dose1D):  # SHOULD DOSE PROFILE SUPPORT PDD WITHOUT A SEPARATE CLASS?
     pass
-
-
-# # PRIVATE FUNCTIONS ======================================
-
-# def _get_dist_vals(dose_prof):
-#     """ Unzip distance-values from dose-profile. """
-#     return list(list(zip(*dose_prof))[0])
-
-# def _get_dose_vals(dose_prof):
-#     """ Unzip dose-values from dose-profile. """
-#     return list(list(zip(*dose_prof))[1])
 
 
 # def _make_dose_vals(dist_vals, dose_func):
