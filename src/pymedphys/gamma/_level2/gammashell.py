@@ -355,6 +355,8 @@ def multi_thresholds_gamma_calc(options: GammaInternalFixedOptions,
     min_relative_dose_difference = cp.array(min_relative_dose_difference)
     dose_percent_threshold = cp.array(options.dose_percent_threshold)
     distance_mm_threshold = cp.array(options.distance_mm_threshold)
+    current_gamma = cp.array(current_gamma)
+    distance = cp.array(distance)
 
     gamma_at_distance = cp.sqrt(
         (
