@@ -64,13 +64,13 @@ def gamma_shell(coords_reference, dose_reference,
     ----------
     coords_reference : tuple
         The reference coordinates.
-    dose_reference : cp.array
+    dose_reference : numpy.ndarray
         The reference dose grid. Each point in the reference grid becomes the
         centre of a Gamma ellipsoid. For each point of the reference, nearby
         evaluation points are searched at increasing distances.
     coords_evaluation : tuple
         The evaluation coordinates.
-    dose_evaluation : cp.array
+    dose_evaluation : numpy.ndarray
         The evaluation dose grid. Evaluation here is defined as the grid which
         is interpolated and searched over at increasing distances away from
         each reference point.
@@ -110,7 +110,7 @@ def gamma_shell(coords_reference, dose_reference,
 
     Returns
     -------
-    gamma : cp.ndarray
+    gamma : numpy.ndarray
         The array of gamma values the same shape as that
         given by the reference coordinates and dose.
     """
@@ -213,7 +213,7 @@ class GammaInternalFixedOptions():
     def set_defaults(self):
         if self.global_normalisation is None:
             object.__setattr__(
-                self, 'global_normalisation', cp.max(self.flat_dose_reference))
+                self, 'global_normalisation', np.max(self.flat_dose_reference))
 
         if self.ram_available is None:
             object.__setattr__(self, 'ram_available', default_ram())
@@ -240,11 +240,11 @@ class GammaInternalFixedOptions():
         distance_mm_threshold = expand_dims_to_1d(distance_mm_threshold)
 
         if global_normalisation is None:
-            global_normalisation = cp.max(dose_reference)
+            global_normalisation = np.max(dose_reference)
 
         lower_dose_cutoff = lower_percent_dose_cutoff / 100 * global_normalisation
 
-        maximum_test_distance = cp.max(distance_mm_threshold) * max_gamma
+        maximum_test_distance = np.max(distance_mm_threshold) * max_gamma
 
         evaluation_interpolation = RegularGridInterpolator(
             coords_evaluation, cp.array(dose_evaluation),
@@ -334,7 +334,7 @@ def gamma_loop(options: GammaInternalFixedOptions) -> np.ndarray:
         distance_step_size = (
             cp.min(relevant_distances) / options.interp_fraction)
 
-        distance_step_size = cp.max([
+        distance_step_size = np.max([
             distance / options.interp_fraction / options.max_gamma,
             distance_step_size])
 
