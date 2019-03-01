@@ -440,8 +440,8 @@ def calculate_min_dose_difference(options, distance, to_be_checked,
 
         evaluation_dose = cp.array(evaluation_dose)
         to_be_checked_sliced = cp.array(to_be_checked_sliced)
-        flat_dose_reference = cp.array(flat_dose_reference)
-        global_normalisation = cp.array(global_normalisation)
+        flat_dose_reference = cp.array(options.flat_dose_reference)
+        global_normalisation = cp.array(options.global_normalisation)
 
         if options.local_gamma:
             with np.errstate(divide='ignore'):
