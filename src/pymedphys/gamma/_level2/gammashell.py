@@ -34,10 +34,13 @@ This module makes use of some of the ideas presented within
 
 import sys
 from typing import Optional
-import itertools
 from dataclasses import dataclass
 
-import numpy as np
+try:
+    import cupy as np
+except ImportError:
+    import numpy as np
+
 from scipy.interpolate import RegularGridInterpolator
 
 import psutil
