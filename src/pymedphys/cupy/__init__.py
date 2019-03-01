@@ -14,3 +14,4 @@ try:
 
 except ImportError:
     cp = numpy
+    cp.asnumpy = numpy.array
