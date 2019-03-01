@@ -372,7 +372,7 @@ def multi_thresholds_gamma_calc(options: GammaInternalFixedOptions,
         cp.concatenate(
             [
                 gamma_at_distance[None, :, :, :],
-                current_gamma[None, to_be_checked, :, :]
+                current_gamma[to_be_checked, :, :][None, :, :, :]
             ],
             axis=0
         ), axis=0
